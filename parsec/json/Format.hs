@@ -6,15 +6,16 @@ import Syntax
 
 formatString s = "\"" ++ s ++ "\""
 formatNumber n = show n
-formatBoolean b = if b then "true" else "false"
+formatBoolean True =  "true"
+formatBoolean False = "false"
 
 formatJSON :: JSON -> String
-formatJSON json = render json ""
-  where
-    render JNull result = result ++ "null"
-    render (JNumber n) result = result ++ formatNumber n
-    render (JString s) result = result ++ formatString s
-    render (JBoolean b) result = result ++ formatBoolean b
-    render (JArray xs) result = result ++ (intercalate "," $ fmap formatJSON xs)
-    render (JObject fs) result = result ++ "{" ++ (intercalate "," $ fmap formatField fs)  ++ "}"
-    formatField (key, value) = formatString key ++ ":" ++ (formatJSON value)
+formatJSON JNull = "null"
+formatJSON (JNumber n) = formatNumber n
+formatJSON (JString s) = formatString s
+formatJSON (JBoolean b) = formatBoolean b
+formatJSON (JArray xs) = (intercalate "," $ fmap formatJSON xs)
+formatJSON (JObject fs) = "{" ++ (intercalate "," $ fmap formatField fs)  ++ "}"
+
+formatField :: JSON_Field -> String
+formatField (key, value) = formatString key ++ ":" ++ (formatJSON value)

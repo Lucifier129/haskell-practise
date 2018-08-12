@@ -4,43 +4,44 @@ import Text.Parsec
 import Text.Parsec.String (Parser)
 import qualified Text.Parsec.Token as Token
 
+import RecursionSchemes
 import Lexer
 import Syntax
 
-json :: Parser JSON
+json :: Parser (Term JSON)
 json = try jnull <|> try jstring <|> try jnumber <|> try jboolean <|> try jarray <|> jobject
 
-jnull :: Parser JSON
+jnull :: Parser (Term JSON)
 jnull = do
   s <- string "null"
-  return JNull
+  return $ In JNull
 
-jstring :: Parser JSON
+jstring :: Parser (Term JSON)
 jstring = do
   s <- stringLiteral
-  return $ JString s
+  return $ In $ JString s
 
-jinteger :: Parser JSON
+jinteger :: Parser (Term JSON)
 jinteger = do
   n <- integer
-  return $ JNumber (fromInteger n)
+  return $ In $ JNumber (fromInteger n)
 
-jfloat :: Parser JSON
+jfloat :: Parser (Term JSON)
 jfloat = do
   n <- float
-  return $ JNumber n
+  return $ In $ JNumber n
 
-jnumber :: Parser JSON
+jnumber :: Parser (Term JSON)
 jnumber = try jinteger <|> jfloat
 
-jboolean :: Parser JSON
+jboolean :: Parser (Term JSON)
 jboolean = do
   s <- try (string "true") <|> (string "false")
   return $ case s of
-    "true" -> JBoolean True
-    "false" -> JBoolean False
+    "true" -> In $ JBoolean True
+    "false" -> In $ JBoolean False
 
-jarray :: Parser JSON
+jarray :: Parser (Term JSON)
 jarray = do
   spaces
   char '['
@@ -49,9 +50,9 @@ jarray = do
   spaces
   char ']'
   spaces
-  return $ JArray v
+  return $ In $ JArray v
 
-jfield :: Parser JSON_Field
+jfield :: Parser (String, Term JSON)
 jfield = do
   spaces
   key <- stringLiteral
@@ -62,7 +63,7 @@ jfield = do
   spaces
   return (key, value)
 
-jobject :: Parser JSON
+jobject :: Parser (Term JSON)
 jobject = do
   spaces
   char '{'
@@ -71,4 +72,4 @@ jobject = do
   spaces
   char '}'
   spaces
-  return $ JObject fields
+  return $ In $ JObject fields
