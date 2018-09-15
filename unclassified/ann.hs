@@ -49,18 +49,16 @@ compute_network :: Network -> Inputs -> Activation -> Network_Output
 compute_network (layer:network') inputs activation = let output = compute_layer layer inputs activation in [inputs] ++ compute_network network' output activation
 compute_network _ inputs _ = [inputs]
 
-compute_node_error :: Node -> Error_Inputs -> Node_Error
-compute_node_error (bias:weights) (bias_error:weight_errors) = bias_error + sum [ weight * error | (weight, error) < zip weights weight_errors]
+-- compute_node_error :: Node -> Layer -> Error_Inputs -> Node_Error
+-- compute_node_error (bias:weights) (bias_error:weight_errors) = bias_error + sum [ weight * error | (weight, error) < zip weights weight_errors]
 
-compute_layer_error :: Layer -> Error_Inputs -> Layer_Errors
-compute_layer_error layer error_inputs = [compute_node_error node error_inputs | node <- layer]
+-- compute_layer_error :: Layer -> Error_Inputs -> Layer_Errors
+-- compute_layer_error layer error_inputs = [compute_node_error node error_inputs | node <- layer]
 
-compute_network_error :: Network -> Network_Output -> Labels -> Network_Error
-compute_network (layer:network') network_output labels = 
-  let
-    error_inputs = [output - label | (label, output) <- zip labels (head.reverse network_output) ]
-    layer_error = compute_layer_error layer error_inputs
-    in
-    [layer_error] ++ compute_network network' 
+-- compute_output_error :: Network_Output -> Labels -> Network_Error
+-- compute_output_error network_output labels = [output - label | (label, output) <- zip labels (head.reverse $ network_output) ]
 
-      
+
+trans_layer layer n = map (\i -> [ node !! i | node <- layer]) [0..n - 1]
+
+trans_network network = (reverse network)
