@@ -8,8 +8,11 @@ type Parser = StateT String Maybe
 item :: Parser Char
 item = StateT uncons
 
+satisfy :: (Char -> Bool) -> Parser Char
+satisfy p = mfilter p item
+
 char :: Char -> Parser Char
-char c = mfilter (==c) item
+char c = satisfy (==c)
 
 data T = T [T] deriving (Show)
 
